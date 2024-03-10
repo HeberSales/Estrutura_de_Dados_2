@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "agencia.h"
+#include "conta.h"
 //para rodar
 //gcc -o main funcionario.c main.c 
 //.\main.exe
@@ -33,27 +34,117 @@ int tamanho_arquivo(FILE *arq){
 }
 */
 
-void insere_5_agencias(FILE *out) {
-    printf("Inserindo 5 Agencias no arquivo...");
+// void le_segunda_agencia(FILE *in) {
+//     printf("\n\nLendo segunda agencia do arquivo...\n\n");
+//     //tamanho() indica quantos bytes vamos pular, o que aqui é igual ao tamanho de um registro 
+//     //(vamos pular o primeiro e nos posicionar no início do segundo)
+//     //** ATENÇÃO: não usar sizeof(Funcionario), pois ele pode retornar valor maior que o tamanho ocupado em disco, 
+//     //            devido a alinhamento automático (ver https://en.wikipedia.org/wiki/Data_structure_alignment))
 
-    Agencia *f1 = agencia(1, "Itau", "Heber");
-    salvaAg(f1, out);
-    free(f1);
-    Agencia *f2 = agencia(2, "Santander", "Marcos");
-    salvaAg(f2, out);
-    free(f2);
-    Agencia *f3 = agencia(3, "Itau", "Kevyn");
-    salvaAg(f3, out);
-    free(f3);
-    Agencia *f4 = agencia(4, "Itau", "Sully");
-    salvaAg(f4, out);
-    free(f4);
-    Agencia *f5 = agencia(5, "Santander", "Heber");
-    salvaAg(f5, out);
-    free(f5);       
+//     //utilizando aqui o seek_set
+//     //ao final, o cursor estará posicionado em 0 + tamanho() +1
+//     fseek(in, tamanhoAg(), SEEK_SET);
+//     Agencia *f = le(in);
+//     if (f != NULL) {
+//         imprimeAg(f);
+//         free(f);
+//     }
+// }
+
+// void adiciona_agencia(FILE *in) {
+//     printf("\n\nAdicionando agencia no final do arquivo...\n\n");
+//     //pula 5 registros para posicionar no início do final do arquivo
+//     fseek(in, tamanhoAg() * 5, SEEK_SET);
+//     Agencia *f = agencia(6, "Itau", "teste");
+//     salvaAg(f, in);
+//     free(f);
+    
+//     //lê funcionário que acabou de ser gravado
+//     //posiciona novamente o cursor no início desse registro
+//     fseek(in, tamanhoAg() * 5, SEEK_SET);
+//     Agencia *f6 = le(in);
+//     if (f6 != NULL) {
+//         imprimeAg(f6);
+//         free(f6);
+//     }    
+// }
+
+// void sobrescreve_quarta_agencia(FILE *in) {
+//     printf("\n\nSobrescrevendo quarta agencia do arquivo...\n\n");
+//     //pula primeiros 3 registros para posicionar no início do quarto registro
+//     fseek(in, tamanhoAg() * 3, SEEK_SET);
+//     Agencia *f4 = agencia(7, "Bradesco", "Catarina");
+//     salvaAg(f4, in);
+//     free(f4);
+    
+//     //lê funcionário que acabou de ser gravado
+//     //posiciona novamente o cursor no início desse registro
+//     fseek(in, tamanhoAg() * 3, SEEK_SET);
+//     Agencia *f = le(in);
+//     if (f != NULL) {
+//         imprimeAg(f);
+//         free(f);
+//     }
+// }
+
+void CadastrarConta(FILE *out) {
+    int codContaCorrente, codAgencia;
+    double salario;
+
+    printf("Digite o codigo da conta corrente: ");
+    scanf("%d", &codContaCorrente);
+
+    printf("Digite o codigo da agencia: ");
+    scanf("%d", &codAgencia);
+
+    printf("Digite o salario: ");
+    scanf("%lf", &salario);
+
+    //criando uma conta com os dados do usuario.
+    Conta *nova_conta = conta(codContaCorrente, codAgencia, salario);
+
+    // Salva a nova conta no arquivo
+    salvaConta(nova_conta, out);
+    free(nova_conta);
+
+    printf("Conta cadastrada com sucesso!\n");
 }
 
-void le_agencias(FILE *in) {
+void CadastrarAgencia(FILE *out) {
+    int cod;
+    char nomeAg[50];
+    char gerente[50];
+
+    printf("Digite o codigo da Agencia: ");
+    scanf("%d", &cod);
+
+    printf("Digite o nome da Agencia: ");
+    scanf("%s", nomeAg);
+
+    printf("Digite o gerente: ");
+    scanf("%s", gerente);
+
+    //criando uma conta com os dados do usuario.
+    Agencia *nova_agencia = agencia(cod, nomeAg, gerente);
+
+    // Salva a nova conta no arquivo
+    salvaAg(nova_agencia, out);
+    free(nova_agencia);
+
+    printf("Agencia cadastrada com sucesso!\n");
+}
+
+void LerContas(FILE *in) {
+    printf("\n\nLendo Contas do arquivo...\n\n");
+    rewind(in);
+    Conta *c;
+    while ((c = leConta(in)) != NULL) {
+        imprimeConta(c);
+        free(c);
+    }
+}
+
+void LerAgencias(FILE *in) {
     printf("\n\nLendo agencias do arquivo...\n\n");
     rewind(in);
     Agencia *f;
@@ -63,87 +154,63 @@ void le_agencias(FILE *in) {
     }
 }
 
-void le_segunda_agencia(FILE *in) {
-    printf("\n\nLendo segunda agencia do arquivo...\n\n");
-    //tamanho() indica quantos bytes vamos pular, o que aqui é igual ao tamanho de um registro 
-    //(vamos pular o primeiro e nos posicionar no início do segundo)
-    //** ATENÇÃO: não usar sizeof(Funcionario), pois ele pode retornar valor maior que o tamanho ocupado em disco, 
-    //            devido a alinhamento automático (ver https://en.wikipedia.org/wiki/Data_structure_alignment))
-
-    //utilizando aqui o seek_set
-    //ao final, o cursor estará posicionado em 0 + tamanho() +1
-    fseek(in, tamanhoAg(), SEEK_SET);
-    Agencia *f = le(in);
-    if (f != NULL) {
-        imprimeAg(f);
-        free(f);
-    }
+void Sair() {
+    printf("Saindo...\n");
+    exit(0);
 }
 
-void adiciona_agencia(FILE *in) {
-    printf("\n\nAdicionando agencia no final do arquivo...\n\n");
-    //pula 5 registros para posicionar no início do final do arquivo
-    fseek(in, tamanhoAg() * 5, SEEK_SET);
-    Agencia *f = agencia(6, "Itau", "teste");
-    salvaAg(f, in);
-    free(f);
-    
-    //lê funcionário que acabou de ser gravado
-    //posiciona novamente o cursor no início desse registro
-    fseek(in, tamanhoAg() * 5, SEEK_SET);
-    Agencia *f6 = le(in);
-    if (f6 != NULL) {
-        imprimeAg(f6);
-        free(f6);
-    }    
-}
-
-void sobrescreve_quarta_agencia(FILE *in) {
-    printf("\n\nSobrescrevendo quarta agencia do arquivo...\n\n");
-    //pula primeiros 3 registros para posicionar no início do quarto registro
-    fseek(in, tamanhoAg() * 3, SEEK_SET);
-    Agencia *f4 = agencia(7, "Bradesco", "Catarina");
-    salvaAg(f4, in);
-    free(f4);
-    
-    //lê funcionário que acabou de ser gravado
-    //posiciona novamente o cursor no início desse registro
-    fseek(in, tamanhoAg() * 3, SEEK_SET);
-    Agencia *f = le(in);
-    if (f != NULL) {
-        imprimeAg(f);
-        free(f);
-    }
-}
 
 void main(int argc, char** argv) {
     //declara ponteiro para arquivo
     FILE *out;
     //abre arquivo
-    if ((out = fopen("agencia.dat", "w+b")) == NULL) {
+
+    if (((out = fopen("agencia.dat", "w+b")) == NULL) || ((out = fopen("conta.dat", "w+b")) == NULL)) {
         printf("Erro ao abrir arquivo\n");
         exit(1);
     }
     else {
-        //insere funcionários
-        insere_5_agencias(out);
+        int continuar=1;
 
-        //volta ao início do arquivo e lê os funcionários inseridos
-        le_agencias(out);
+        do
+        {
+            printf("\n\tMenu\n\n");
+            printf("1. Cadastrar - Conta\n");
+            printf("2. Cadastrar - Agencia\n");
+            printf("3. Ler - Contas\n");
+            printf("4. Ler - Agencias\n");
+            printf("5. Sair\n");
+            printf("\n");
 
-        //volta ao início do arquivo e lê o segundo funcionário
-        le_segunda_agencia(out);
+            scanf("%d", &continuar);
+            system("cls || clear");
 
-        //grava mais um funcionário no final do arquivo
-        adiciona_agencia(out);
+            switch(continuar)
+            {
+                case 1:
+                    CadastrarConta(out);
+                    break;
 
-        //sobrescreve quarto funcionário
-        sobrescreve_quarta_agencia(out);
-        
-        //lendo o arquivo todo novamente
-        le_agencias(out);
-        tamanhoAg(out);
-        //fecha arquivo
+                case 2:
+                    CadastrarAgencia(out);
+                    break;
+
+                case 3:
+                    LerContas(out);
+                    break;
+
+                case 4:
+                    LerAgencias(out);
+                    break;
+
+                case 5:
+                    Sair();
+                    break;
+
+                default:
+                    printf("Digite uma opcao valida\n");
+            }
+    } while(continuar);
         fclose(out);    
     }
 }
